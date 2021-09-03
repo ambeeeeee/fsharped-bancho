@@ -8,7 +8,7 @@ type FetchUserMessage =
       Id: UserId }
 
 type UserStatesMessage =
-    | FetchUser of FetchUserMessage
+    | FetchUser of UserId * AsyncReplyChannel<Option<User>>
     | AddUser of User
     | RemoveUser of UserId
 
@@ -32,7 +32,7 @@ type UserStates() =
     static let RemoveUser user =
         lock users (fun () -> users.Remove(user) |> ignore)
 
-    static member Mailbox =
+    member this.Mailbox =
         MailboxProcessor.Start
             (fun inbox ->
                 let rec loop =
@@ -40,7 +40,7 @@ type UserStates() =
                         let! msg = inbox.Receive()
 
                         match msg with
-                        | FetchUser { Channel = channel; Id = id } -> channel.Reply <| GetUser id
+                        | FetchUser (id, channel) -> channel.Reply <| GetUser id
                         | AddUser user -> AddUser user
                         | RemoveUser user -> RemoveUser user
                     }
