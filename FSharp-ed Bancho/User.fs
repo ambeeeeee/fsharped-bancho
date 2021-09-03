@@ -1,23 +1,28 @@
 ﻿namespace FSharp_ed_Bancho
 
-open System
+type UserMessage =
+    | FetchId of AsyncReplyChannel<UserId>
+    | FetchStatus of AsyncReplyChannel<Option<UserStatus>>
+    | FetchUserInfo of AsyncReplyChannel<Option<UserInfo>>
 
 type User(id) =
-    inherit UserId(id) 
+    inherit UserId(id)
 
-    let userStatus: Option<UserStatus> = None
-    
-    let mailbox =
-        new MailboxProcessor<string>(User.mailboxHandler)
+    member this.userStatus: Option<UserStatus> = None
 
-    static member mailboxHandler =
-        fun inbox ->
-            let rec loop () =
-                async {
-                    printfn "hi"
+    member this.userInfo: Option<UserInfo> = None
 
-                    let! msg = inbox.Receive()
-                    do! loop ()
-                }
+    member this.Mailbox =
+        MailboxProcessor.Start
+            (fun inbox ->
+                let rec loop =
+                    async {
+                        let! msg = inbox.Receive()
 
-            loop ()
+                        match msg with
+                        | FetchId reply -> reply.Reply(this)
+                        | FetchStatus reply -> reply.Reply(this.userStatus)
+                        | FetchUserInfo reply -> reply.Reply(this.userInfo)
+                    }
+
+                loop)

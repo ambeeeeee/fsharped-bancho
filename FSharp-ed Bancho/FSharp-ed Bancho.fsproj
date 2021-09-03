@@ -10,6 +10,7 @@
     <ItemGroup>
         <Compile Include="UserId.fs" />
         <Compile Include="UserStatus.fs" />
+        <Compile Include="UserInfo.fs" />
         <Compile Include="User.fs" />
         <Compile Include="UserStates.fs" />
         <Compile Include="Program.fs" />
