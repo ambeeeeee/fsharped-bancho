@@ -4,13 +4,15 @@ type UserMessage =
     | FetchId of AsyncReplyChannel<UserId>
     | FetchStatus of AsyncReplyChannel<Option<UserStatus>>
     | FetchUserInfo of AsyncReplyChannel<Option<UserInfo>>
+    | SetStatus of Option<UserStatus>
+    | SetUserInfo of Option<UserInfo>
 
 type User(id) =
     inherit UserId(id)
 
-    member this.userStatus: Option<UserStatus> = None
+    let mutable userStatus: Option<UserStatus> = None
 
-    member this.userInfo: Option<UserInfo> = None
+    let mutable userInfo: Option<UserInfo> = None
 
     member this.Mailbox =
         MailboxProcessor.Start
@@ -21,8 +23,10 @@ type User(id) =
 
                         match msg with
                         | FetchId reply -> reply.Reply(this)
-                        | FetchStatus reply -> reply.Reply(this.userStatus)
-                        | FetchUserInfo reply -> reply.Reply(this.userInfo)
+                        | FetchStatus reply -> reply.Reply(userStatus)
+                        | FetchUserInfo reply -> reply.Reply(userInfo)
+                        | SetStatus status -> userStatus <- status
+                        | SetUserInfo info -> userInfo <- info
                     }
 
                 loop)
