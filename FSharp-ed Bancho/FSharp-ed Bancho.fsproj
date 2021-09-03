@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="UsersState.fs" />
         <Compile Include="UserId.fs" />
         <Compile Include="UserStatus.fs" />
         <Compile Include="User.fs" />
